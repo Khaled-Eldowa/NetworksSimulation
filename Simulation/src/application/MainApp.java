@@ -14,7 +14,7 @@ public class MainApp {
 
 	public static void main(String[] args) {
 		
-		int c, maxLength, numberOfJobs, temp;
+		int c, maxLength, temp;
 		double miat, mst, mtbf, mttr, tempDouble;
 		boolean errorFlag=false;
 		queues_analytical.Queue theoriticalModel;
@@ -66,13 +66,7 @@ public class MainApp {
 					if(mst <= 0)
 						throw new Exception("Error: Mean service time has to be positive");
 					
-					System.out.println("Enter total number of jobs to simulate: ");
-					numberOfJobs = in.nextInt();
-					in.nextLine();
-					if(numberOfJobs < 1)
-						throw new Exception("Error: The number of jobs has to be 1 or more");
-					
-					mmcl.startSimulation(miat, mst, numberOfJobs);
+					mmcl.startSimulation(miat, mst);
 					
 					theoriticalModel = new M_M_c_L(1/(double)miat, 1/(double)mst, c, maxLength);
 					mmcl.calculateMetrics(theoriticalModel);
@@ -129,13 +123,7 @@ public class MainApp {
 					else 
 						mmclBreakdown.setMultipleRepairMen(false);
 					
-					System.out.println("Enter total number of jobs to simulate: ");
-					numberOfJobs = in.nextInt();
-					in.nextLine();
-					if(numberOfJobs < 1)
-						throw new Exception("Error: The number of jobs has to be 1 or more");
-					
-					mmclBreakdown.startSimulation(miat, mst, mtbf, mttr, numberOfJobs);
+					mmclBreakdown.startSimulation(miat, mst, mtbf, mttr);
 					
 					mmclBreakdown.calculateMetrics_unreliable();
 					

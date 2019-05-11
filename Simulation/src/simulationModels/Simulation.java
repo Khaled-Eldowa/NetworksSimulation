@@ -2,6 +2,7 @@ package simulationModels;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.Random;
 
 import components.Job;
@@ -19,6 +20,10 @@ public abstract class Simulation {
 	protected double[] serverTimes; //holds the total busy time for a server
 	protected double[] serverDownTimes; //holds the total down time of a server (only used for unreliable systems)
 	protected boolean multipleRepairMen; //not used in all simulation types (only used for unreliable systems)
+	protected double PMQL; //Past Mean Queue Length
+	protected double CMQL; // Current Mean Queue Length 
+	protected LinkedList<Double> MQLList; //list that will hold 20 MQL values at a time
+	public final double EPSILON = 0.0000001;//epsilon, the steady state cutoff. Decided on via trials.
 
 	public Simulation(int numberOfServers) {
 		
@@ -31,8 +36,29 @@ public abstract class Simulation {
 		this.serverTimes = new double[numberOfServers];
 		this.serverDownTimes = new double[numberOfServers];
 		this.multipleRepairMen = false; //a single repairman by default (only used for unreliable systems)
+		this.PMQL = 0;
+		this.CMQL = 0;
+		this.MQLList = new LinkedList<Double>();
 	}
 
+	public boolean isInSteadyState(int i) {
+		this.CMQL = getMeanQueueLength(); //always update the current MQL
+		if(i<=0) //skip first iteration
+			return false;
+		else if(i<21) { //don't do comparisons until we fill our list
+			MQLList.add(this.CMQL); //add the current MQL to the end of the list
+			return false;
+		} else {
+			this.PMQL = MQLList.remove(); //remove the head of the list to be the comparison base
+			MQLList.add(this.CMQL); //add the current MQL to the end of the list
+			for (Double mqli : MQLList) {
+				if(Math.abs(mqli - PMQL) > EPSILON) //make sure that all the MQLs in the list are close enough to the recently removed one
+					return false;
+			}
+			return true; //will end the simulation
+		}
+	}
+	
 	public ArrayList<Job> getDroppedJobs() {
 		return droppedJobs;
 	}
@@ -110,6 +136,8 @@ public abstract class Simulation {
 		for (int i = 0; i < numberOfServers; i++) {
 			servers.add(new Server());
 		}
+		this.PMQL = 0;
+		this.CMQL = 0;
 	}
 	
 	//gets number of jobs getting served + number of jobs in the queue
@@ -154,10 +182,8 @@ public abstract class Simulation {
 	public double getMeanQueueLength() {
 		if (clock>0) {
 			double meanQueueLength = 0;
-			for (int i = 0; i < getNumberOfJobsSoFar()+1; i++) {
-				if(stateTimes.containsKey(i))
-					meanQueueLength += i*stateTimes.get(i)/clock;
-				//else we add zero
+			for (int i : stateTimes.keySet()) {
+				meanQueueLength += i*stateTimes.get(i)/clock;
 			}
 			return meanQueueLength;
 		}

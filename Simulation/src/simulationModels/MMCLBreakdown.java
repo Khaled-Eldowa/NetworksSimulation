@@ -39,7 +39,7 @@ public class MMCLBreakdown extends Simulation {
 
 
 	public void startSimulation(double meanInterArrivalTime, double meanServiceTime, double meanTimeBetweenFailures,
-			double meanTimeToRepair, int numberOfJobs) {
+			double meanTimeToRepair) {
 		reset();
 		ExponentialGenerator interArrivalTimeGenerator = new ExponentialGenerator(meanInterArrivalTime);
 		ExponentialGenerator sericeTimeGenerator = new ExponentialGenerator(meanServiceTime);
@@ -51,19 +51,16 @@ public class MMCLBreakdown extends Simulation {
 		int nextServerID_repair;
 		int[] serverStatus; // holds index of first empty server and the number of empty servers
 
-		int jobCount = 0;
 
 		// System.out.println("Start Simulation Function !!!");
 		
 		Job nextJob = new Job(0.0, sericeTimeGenerator.generate());
 		double nextJobArrivalTime = 0;
 		double nextBreakDown = clock + timeBetweenFailuresGenerator.generate();
-		jobCount++;
-		
 		double nextServiceEnd;
 		double nextRepairEnd;
 
-		while (servedJobs.size() + droppedJobs.size() < numberOfJobs) {
+		for (int k=0; !isInSteadyState(k) ;k++) {
 			
 			/**
 			 * Need to know what is the next event and what time it is.
@@ -76,10 +73,8 @@ public class MMCLBreakdown extends Simulation {
 			else
 				nextServiceEnd = servers.get(nextServerID).getJobBeingServed().getServiceEndTime();
 			
-			if (jobCount <= numberOfJobs)
-				nextJobArrivalTime = nextJob.getArrivalTime(); // The time of the next job arrival
-			else
-				nextJobArrivalTime = Double.POSITIVE_INFINITY; //no more jobs
+			
+			nextJobArrivalTime = nextJob.getArrivalTime(); // The time of the next job arrival
 			
 			nextServerID_repair = getNextRepair();
 			if(nextServerID_repair == -1)
@@ -128,7 +123,6 @@ public class MMCLBreakdown extends Simulation {
 				}
 				
 				nextJob = new Job(clock + interArrivalTimeGenerator.generate(), sericeTimeGenerator.generate());
-				jobCount++;
 				// System.out.println("Arrival");
 
 			} else if (serviceCheck) {

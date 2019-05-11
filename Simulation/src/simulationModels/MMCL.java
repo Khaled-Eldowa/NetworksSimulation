@@ -1,6 +1,5 @@
 package simulationModels;
 
-import java.util.ArrayList;
 
 import components.Job;
 import components.Server;
@@ -22,6 +21,7 @@ public class MMCL extends Simulation {
 
 	}
 
+	//for testing
 	public void showLogs() {
 		System.out.println("Showing the results : " + servedJobs.size() + "\n");
 		for (int i = 0; i < servedJobs.size(); ++i) {
@@ -41,7 +41,7 @@ public class MMCL extends Simulation {
 	}
 
 	
-	public void startSimulation(double meanInterArrivalTime, double meanServiceTime, int numberOfJobs) {
+	public void startSimulation(double meanInterArrivalTime, double meanServiceTime) {
 		reset();
 		ExponentialGenerator interArrivalTimeGenerator = new ExponentialGenerator(meanInterArrivalTime);
 		ExponentialGenerator sericeTimeGenerator = new ExponentialGenerator(meanServiceTime);
@@ -50,26 +50,21 @@ public class MMCL extends Simulation {
 		int nextServerID;
 		int[] serverStatus; // holds index of first empty server and the number of empty servers
 
-		int jobCount = 0;
-
 		// System.out.println("Start Simulation Function !!!");
 		
 		Job nextJob = new Job(0.0, sericeTimeGenerator.generate());
 		double nextJobArrivalTime = 0;
-		jobCount++;
-
-		while (servedJobs.size() + droppedJobs.size() < numberOfJobs) {
+	
+		for (int k=0; !isInSteadyState(k) ;k++) {
 			
 			/**
 			 * Need to know what is the next event and what time it is.
 			 */
 			// System.out.println("Iteration!");
 
-			nextServerID = getNextServer(); // the id of the next server going to finish
-			if (jobCount <= numberOfJobs)
-				nextJobArrivalTime = nextJob.getArrivalTime(); // The time of the next job arrival
-			else
-				nextJobArrivalTime = Double.POSITIVE_INFINITY;
+			nextServerID = getNextServer(); // the id of the next server going to finish, -1 if no server is busy
+				
+			nextJobArrivalTime = nextJob.getArrivalTime();
 
 			// Check the status of all servers
 			serverStatus = checkServers();
@@ -98,7 +93,6 @@ public class MMCL extends Simulation {
 				}
 				
 				nextJob = new Job(clock + interArrivalTimeGenerator.generate(), sericeTimeGenerator.generate());
-				jobCount++;
 				// System.out.println("Arrival");
 
 			} else // Look to get the next job after checking the queue, and current idle servers
@@ -114,6 +108,8 @@ public class MMCL extends Simulation {
 
 				servers.get(nextServerID).finishJob();
 				// System.out.println("Departure");
+			} else { //dead code, just for testing
+				System.out.println("This should never happen!");
 			}
 
 			// Push the jobs waiting in the queue to the servers if they are Idle
