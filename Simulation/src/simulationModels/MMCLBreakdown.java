@@ -1,6 +1,9 @@
 package simulationModels;
 
 
+import java.util.ArrayList;
+import java.util.Collections;
+
 import components.Job;
 import components.Server;
 import randomGens.ExponentialGenerator;
@@ -19,6 +22,7 @@ public class MMCLBreakdown extends Simulation {
 		this.maxLength = queueLength;
 	}
 
+	//just for testing
 	public void showLogs() {
 		System.out.println("Showing the results : " + servedJobs.size() + "\n");
 		for (int i = 0; i < servedJobs.size(); ++i) {
@@ -56,8 +60,16 @@ public class MMCLBreakdown extends Simulation {
 		
 		Job nextJob = new Job(0.0, sericeTimeGenerator.generate());
 		double nextJobArrivalTime = 0;
-		double nextBreakDown = clock + timeBetweenFailuresGenerator.generate();
+
+		ArrayList<Double> nextBreakdownsList = new ArrayList<>();
+		for (int i = 0; i < servers.size(); i++) {
+			nextBreakdownsList.add(clock + timeBetweenFailuresGenerator.generate());
+		}
+		double nextBreakDown; 
+		int nextBreakDownServer;
+		
 		double nextServiceEnd;
+		
 		double nextRepairEnd;
 
 		for (int k=0; !isInSteadyState(k) ;k++) {
@@ -75,6 +87,14 @@ public class MMCLBreakdown extends Simulation {
 			
 			
 			nextJobArrivalTime = nextJob.getArrivalTime(); // The time of the next job arrival
+			
+			if (allBusyServers()) {
+				nextBreakDown = Double.POSITIVE_INFINITY;
+				nextBreakDownServer = -1;
+			} else {
+				nextBreakDown = Collections.min(nextBreakdownsList);
+				nextBreakDownServer = nextBreakdownsList.indexOf(nextBreakDown);
+			}
 			
 			nextServerID_repair = getNextRepair();
 			if(nextServerID_repair == -1)
@@ -142,21 +162,26 @@ public class MMCLBreakdown extends Simulation {
 				updateStateAndServerTimes_unreliable(clock, previousClock); //update the records
 						
 				servers.get(nextServerID_repair).repair();
+				nextBreakdownsList.set(nextServerID_repair, clock + timeBetweenFailuresGenerator.generate()); //set its next breakdown time
 				
 			} else if (breakDownCheck) {
 				previousClock = clock;
 				this.clock = nextBreakDown;
 				updateStateAndServerTimes_unreliable(clock, previousClock); //update the records
 				
-				int breakDownServer = chooseBreakDownServer(); //choose a server to break randomly
+				/*int breakDownServer = chooseBreakDownServer(); //choose a server to break randomly
 				if(breakDownServer!=-1) { //if there is at least one server that is not broken down
 					if(!servers.get(breakDownServer).isEmptyStatus())
 						droppedJobs.add(servers.get(breakDownServer).getJobBeingServed()); //drop the job being served
 					servers.get(breakDownServer).breakDown(nextBreakDown, getRepairManBusyTime() + timeToRepairGenerator.generate());
 					//break down the server and generate a repair time
-				}
+				}*/
 				
-				nextBreakDown = clock + timeBetweenFailuresGenerator.generate();
+				if(!servers.get(nextBreakDownServer).isEmptyStatus())
+					droppedJobs.add(servers.get(nextBreakDownServer).getJobBeingServed()); //drop the job being served
+				servers.get(nextBreakDownServer).breakDown(nextBreakDown, getRepairManBusyTime() + timeToRepairGenerator.generate());
+				
+				nextBreakdownsList.set(nextBreakDownServer, Double.POSITIVE_INFINITY); //we will update its next breakdown time once it's repaired
 					
 			} else { //dead code, just for testing
 				System.out.println("This should never happen!");

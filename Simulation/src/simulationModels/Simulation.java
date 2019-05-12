@@ -3,8 +3,6 @@ package simulationModels;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedList;
-import java.util.Random;
-
 import components.Job;
 import components.Server;
 
@@ -410,21 +408,14 @@ public abstract class Simulation {
 	}
 	
 	//chooses a server randomly (if there is one available) to breakdown
-	public int chooseBreakDownServer() {
-		ArrayList<Integer> functionalServers = new ArrayList<Integer>();
-		int i = 0;
-		while (i < servers.size()) {
-			if (!servers.get(i).isBrokeDown(clock)) {
-				functionalServers.add(i);
-			}
-			i++;
+	public boolean allBusyServers() {
+		
+		for (int i = 0; i < servers.size(); i++) {
+			if (!servers.get(i).isBrokeDown(clock))
+				return false;
 		}
-		if(functionalServers.isEmpty())
-			return -1; 
-		else {
-			int rnd = new Random().nextInt(functionalServers.size());
-		    return functionalServers.get(rnd);
-		}
+		
+		return true;
 	}
 	
 	public boolean isMultipleRepairMen() {
