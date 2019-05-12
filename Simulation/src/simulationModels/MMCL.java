@@ -74,10 +74,7 @@ public class MMCL extends Simulation {
 			// this condition will be satisfied)
 			// or there is more than one job with the same arrival time, so compare it with
 			// the clock time
-			if ((nextJobArrivalTime < Double.POSITIVE_INFINITY && serverStatus[1] == servers.size())
-					|| (servers.get(nextServerID).isEmptyStatus() == false
-							&& nextJobArrivalTime <= servers.get(nextServerID).getJobBeingServed().getServiceEndTime())
-					|| (nextJobArrivalTime == this.clock)) {
+			if ((nextServerID == -1) || (nextJobArrivalTime <= servers.get(nextServerID).getJobBeingServed().getServiceEndTime())) {
 
 				previousClock = clock;
 				this.clock = nextJobArrivalTime; // Change the time
@@ -95,10 +92,7 @@ public class MMCL extends Simulation {
 				nextJob = new Job(clock + interArrivalTimeGenerator.generate(), sericeTimeGenerator.generate());
 				// System.out.println("Arrival");
 
-			} else // Look to get the next job after checking the queue, and current idle servers
-			if ((servers.get(nextServerID).isEmptyStatus() == false
-					&& nextJobArrivalTime > servers.get(nextServerID).getJobBeingServed().getServiceEndTime())
-					|| (servers.get(nextServerID).getJobBeingServed().getServiceEndTime() == this.clock)) {
+			} else { //service end
 
 				previousClock = clock;
 				this.clock = servers.get(nextServerID).getJobBeingServed().getServiceEndTime();
@@ -108,9 +102,7 @@ public class MMCL extends Simulation {
 
 				servers.get(nextServerID).finishJob();
 				// System.out.println("Departure");
-			} else { //dead code, just for testing
-				System.out.println("This should never happen!");
-			}
+			} 
 
 			// Push the jobs waiting in the queue to the servers if they are Idle
 			int i = 0;
@@ -128,16 +120,11 @@ public class MMCL extends Simulation {
 		}
 	}
 
-	/*public boolean isEndSimulation() {
-		if (servedJobs.size() + droppedJobs.size() == numberOfJobs)
-			return true;
-		return false;
-	}*/
 
 	
 	public int getNextServer() {
 
-		int nextServer = 0;
+		int nextServer = -1;
 		double minimumTime = Double.POSITIVE_INFINITY;
 		int i = 0;
 		while (i < servers.size()) {

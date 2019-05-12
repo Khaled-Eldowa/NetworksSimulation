@@ -62,7 +62,7 @@ public class M_M_c_L extends Queue{
 		throughPut = mu*P_0*(sum1 + sum2 * (Math.pow(c,c+1))/(Factorial.getFact(c)));
 	}
 	
-	protected void Calc_E_t()
+	protected void Calc_E_t() //response time
 	{
 		E_t = E_n/throughPut;
 	}
@@ -74,7 +74,7 @@ public class M_M_c_L extends Queue{
 	
 	protected void Calc_E_w()
 	{
-		E_w = E_t - E_s;
+		E_w = E_m / lambda;
 	}
 	
 	protected void Calc_E_m()

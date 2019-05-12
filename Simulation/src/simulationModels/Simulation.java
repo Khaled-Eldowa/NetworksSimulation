@@ -255,10 +255,8 @@ public abstract class Simulation {
 	
 		
 		double meanQueueLength = 0;
-		for (int i = 0; i < getNumberOfJobsSoFar()+1; i++) {
-			if(stateProbabilties.containsKey(i))
-				meanQueueLength += i*stateProbabilties.get(i);
-			//else we add zero
+		for (int i : stateProbabilties.keySet()) {
+			meanQueueLength += i*stateProbabilties.get(i);
 		}
 		System.out.print("Mean Queue Length: " + meanQueueLength);
 		System.out.println(String.format(" (%.4f%%  of theortical value)",
@@ -316,6 +314,16 @@ public abstract class Simulation {
 			}
 		}
 		
+		for(Job job: droppedJobs) {
+			if(job.getServiceStartTime() != -1) {
+				totalWaitingTime += job.getTimeInQueue();
+				if(job.getTimeInQueue() > 0) {
+					numberOfWaitingJobs++;
+					totalWaitingTimeCustom += job.getTimeInQueue();
+				}
+			}
+		}
+		
 		avgWaitingTime = totalWaitingTime/getNumberOfJobsSoFar();
 		System.out.println("Average Waiting Time: " + avgWaitingTime);
 		
@@ -354,10 +362,8 @@ public abstract class Simulation {
 	
 		
 		double meanQueueLength = 0;
-		for (int i = 0; i < getNumberOfJobsSoFar()+1; i++) {
-			if(stateProbabilties.containsKey(i))
-				meanQueueLength += i*stateProbabilties.get(i);
-			//else we add zero
+		for (int i : stateProbabilties.keySet()) {
+			meanQueueLength += i*stateProbabilties.get(i);
 		}
 		System.out.println("Mean Queue Length: " + meanQueueLength);
 		

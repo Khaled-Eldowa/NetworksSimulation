@@ -105,17 +105,11 @@ public class MMCLBreakdown extends Simulation {
 			//warning: the following booleans are not mutually exclusive, the first true one is considered (check if elses below)
 			//we are deciding which kind of event is next
 			boolean arrivalCheck = (nextJobArrivalTime < nextServiceEnd) && (nextJobArrivalTime < nextRepairEnd) &&
-					(nextJobArrivalTime < nextBreakDown) && (nextJobArrivalTime < Double.POSITIVE_INFINITY) || 
-					(nextJobArrivalTime == clock);
+					(nextJobArrivalTime < nextBreakDown);
 			
-			boolean serviceCheck = (nextServiceEnd < nextRepairEnd) && (nextServiceEnd < nextBreakDown) 
-					&& (nextServiceEnd < Double.POSITIVE_INFINITY) || 
-					(nextServiceEnd == clock);
+			boolean serviceCheck = (nextServiceEnd < nextRepairEnd) && (nextServiceEnd < nextBreakDown);
 			
-			boolean repairCheck = (nextRepairEnd < nextBreakDown) && (nextRepairEnd < Double.POSITIVE_INFINITY) || 
-					(nextRepairEnd == clock);
-			
-			boolean breakDownCheck = (nextBreakDown < Double.POSITIVE_INFINITY) || (nextBreakDown == clock);
+			boolean repairCheck = (nextRepairEnd < nextBreakDown);
 			
 			
 
@@ -164,18 +158,10 @@ public class MMCLBreakdown extends Simulation {
 				servers.get(nextServerID_repair).repair();
 				nextBreakdownsList.set(nextServerID_repair, clock + timeBetweenFailuresGenerator.generate()); //set its next breakdown time
 				
-			} else if (breakDownCheck) {
+			} else {
 				previousClock = clock;
 				this.clock = nextBreakDown;
 				updateStateAndServerTimes_unreliable(clock, previousClock); //update the records
-				
-				/*int breakDownServer = chooseBreakDownServer(); //choose a server to break randomly
-				if(breakDownServer!=-1) { //if there is at least one server that is not broken down
-					if(!servers.get(breakDownServer).isEmptyStatus())
-						droppedJobs.add(servers.get(breakDownServer).getJobBeingServed()); //drop the job being served
-					servers.get(breakDownServer).breakDown(nextBreakDown, getRepairManBusyTime() + timeToRepairGenerator.generate());
-					//break down the server and generate a repair time
-				}*/
 				
 				if(!servers.get(nextBreakDownServer).isEmptyStatus())
 					droppedJobs.add(servers.get(nextBreakDownServer).getJobBeingServed()); //drop the job being served
@@ -183,8 +169,6 @@ public class MMCLBreakdown extends Simulation {
 				
 				nextBreakdownsList.set(nextBreakDownServer, Double.POSITIVE_INFINITY); //we will update its next breakdown time once it's repaired
 					
-			} else { //dead code, just for testing
-				System.out.println("This should never happen!");
 			}
 
 			// Push the jobs waiting in the queue to the servers if they are Idle

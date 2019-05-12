@@ -53,6 +53,9 @@ public class MainApp {
 					if(maxLength<1)
 						throw new Exception("Error: L has to be 1 or more");
 					
+					if(maxLength < c)
+						throw new Exception("Error: L is not allowed to be smaller than c. It means c-L servers are useless!! (it messes up with our analytical model)");
+					
 					MMCL mmcl = new MMCL(c, maxLength);
 					
 					System.out.println("Enter mean inter-arrival TIME (minutes): ");
@@ -87,6 +90,9 @@ public class MainApp {
 					in.nextLine();
 					if(maxLength<1)
 						throw new Exception("Error: L has to be 1 or more");
+					
+					if(maxLength < c)
+						throw new Exception("Error: L is not allowed to be smaller than c. It means c-L servers are useless!! (it messes up with our analytical model)");
 					
 					MMCLBreakdown mmclBreakdown = new MMCLBreakdown(c, maxLength);
 					

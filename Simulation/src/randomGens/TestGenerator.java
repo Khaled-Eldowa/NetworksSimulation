@@ -35,23 +35,8 @@ public class TestGenerator {
 	private static void generateHistogram(int sampleSize, ArrayList<Double> samples, double min, double max)
 	{
 		int histogramSize = (int)Math.sqrt(sampleSize);
-		int[] histogram = new int[histogramSize];
 		double histogramIntervalWidth = (max-min)/histogramSize;
-		/*for(double value:samples)
-		{
-			if(value < max)
-				histogram[(int)((value-min-Math.ulp(value))/histogramIntervalWidth)] += 1;
-		}
-		System.out.println("Histogram:");
-		for(int i=0; i<histogramSize; i++)
-		{
-			//System.out.println("Interval " + i + ": " + histogram[i]);
-			System.out.print("Interval " + i + ": ");
-			double stars = histogram[i]/500.0;
-			for(int j=0; j<stars; j++)
-				System.out.print("*");
-			System.out.println();
-		}*/
+		
 		
 		Histogram graphical = new Histogram(histogramSize);
 		for (double value:samples) {

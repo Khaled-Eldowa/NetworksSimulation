@@ -14,7 +14,7 @@ public abstract class Queue {
 	protected double P_0; //probability that the system is idle
 	protected double E_n; //mean queue length
 	protected double throughPut; //throughput of the system
-	protected double E_t; //Response time (delay) (avg. total time spent in the system)
+	protected double E_t; //Response time (delay) 
 	protected double E_s; //avg. service time
 	protected double E_w; //avg. waiting time in the queue
 	protected double E_m; //avg. number of jobs in the queue
@@ -42,9 +42,9 @@ public abstract class Queue {
 		Calc_E_n(); 
 		Calc_throughPut(); 
 		Calc_E_t(); 
-		Calc_E_s(); 
-		Calc_E_w();
+		Calc_E_s();
 		Calc_E_m();
+		Calc_E_w();
 		Calc_u();
 		Calc_P_busy();
 		Calc_P_QueueNotEmpty();
